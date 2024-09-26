@@ -1,0 +1,13 @@
+<!-- res/drawable/rounded_button.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Set the background color of the button -->
+    <solid android:color="#FF6200EE"/> <!-- Change this to your desired color -->
+
+    <!-- Set the corner radius -->
+    <corners android:radius="16dp"/> <!-- Adjust this value for a different radius -->
+
+    <!-- Optional: Add stroke to the button -->
+    <stroke
+        android:width="2dp"
+        android:color="#FF3700B3"/> <!-- Stroke color -->
+</shape>
