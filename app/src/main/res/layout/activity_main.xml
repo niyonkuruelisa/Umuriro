@@ -21,14 +21,14 @@
         android:textColor="@color/white"
         android:text="Kanda Kuri button Utangire ucunge umuriro" />
 
-   <Button
-       android:id="@+id/start_checking_power"
-       android:layout_width="wrap_content"
-       android:layout_marginTop="10dp"
-       android:layout_height="wrap_content"
-       android:textColor="@color/white"
-       android:background="@color/color_primary"
-       android:text="Tangira gucunga" />
+<!--   <Button-->
+<!--       android:id="@+id/start_checking_power"-->
+<!--       android:layout_width="wrap_content"-->
+<!--       android:layout_marginTop="10dp"-->
+<!--       android:layout_height="wrap_content"-->
+<!--       android:textColor="@color/white"-->
+<!--       android:background="@color/color_primary"-->
+<!--       android:text="Tangira gucunga" />-->
        <!--Switch with default state as enabled-->
        <androidx.appcompat.widget.SwitchCompat
            android:id="@+id/buttonSwitch"
