@@ -19,6 +19,8 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.niyonkuruelisa.umuriro.models.DeviceSettings;
+import com.niyonkuruelisa.umuriro.services.OfflineStorageService;
 import com.niyonkuruelisa.umuriro.services.StopAlarmReceiver;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,6 +61,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Save initial settings
+        OfflineStorageService offlineStorageService = new OfflineStorageService(this);
+        offlineStorageService.ClearAllData();
+        DeviceSettings deviceSettings = new DeviceSettings();
+        deviceSettings.setIsMonitor(true);
+        deviceSettings.setPhoneNumber1("+250788888888");
+        offlineStorageService.createDeviceSettings(new DeviceSettings());
+        // get saved settings and log them
+        DeviceSettings savedSettings = offlineStorageService.getDeviceSettings();
+
+        Log.d("DeviceSettings", "info: " + savedSettings.toString());
+        Log.d("DeviceSettings", savedSettings.getIsMonitor() + "");
+        Log.d("DeviceSettings", savedSettings.getPhoneNumber1() + "");
     }
     private void requestIgnoreBatteryOptimizations() {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
