@@ -103,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
         View dialogView = inflater.inflate(R.layout.dialog_initial_settings, null);
         EditText userNameInput = dialogView.findViewById(R.id.userName1);
         EditText userPhoneInput = dialogView.findViewById(R.id.userPhone1);
+        EditText userNameInput2 = dialogView.findViewById(R.id.userName2);
+        EditText userPhoneInput2 = dialogView.findViewById(R.id.userPhone2);
+        EditText userNameInput3 = dialogView.findViewById(R.id.userName3);
+        EditText userPhoneInput3 = dialogView.findViewById(R.id.userPhone3);
+        EditText userNameInput4 = dialogView.findViewById(R.id.userName4);
+        EditText userPhoneInput4 = dialogView.findViewById(R.id.userPhone4);
 
         Button monitorButton = dialogView.findViewById(R.id.monitorButton);
         Button recevierButton = dialogView.findViewById(R.id.receiverButton);
@@ -118,6 +124,21 @@ public class MainActivity extends AppCompatActivity {
         invalidNumberSection.setVisibility(View.GONE);
         TextView invalidNumberText = invalidNumberSection.findViewById(R.id.AlertTitle);
         invalidNumberText.setText("Andika Nimero ningombwa. 07....");
+
+        LinearLayout invalidNumberSection2 = dialogView.findViewById(R.id.invalid_number_section2);
+        invalidNumberSection2.setVisibility(View.GONE);
+        TextView invalidNumberText2 = invalidNumberSection2.findViewById(R.id.AlertTitle);
+        invalidNumberText2.setText("Andika Nimero ningombwa. 07....");
+
+        LinearLayout invalidNumberSection3 = dialogView.findViewById(R.id.invalid_number_section3);
+        invalidNumberSection3.setVisibility(View.GONE);
+        TextView invalidNumberText3 = invalidNumberSection3.findViewById(R.id.AlertTitle);
+        invalidNumberText3.setText("Andika Nimero ningombwa. 07....");
+
+        LinearLayout invalidNumberSection4 = dialogView.findViewById(R.id.invalid_number_section4);
+        invalidNumberSection4.setVisibility(View.GONE);
+        TextView invalidNumberText4 = invalidNumberSection4.findViewById(R.id.AlertTitle);
+        invalidNumberText4.setText("Andika Nimero ningombwa. 07....");
 
         LinearLayout usersToNotifySection = dialogView.findViewById(R.id.usersToNotifySection);
         LinearLayout moreUsersToNotifySection = dialogView.findViewById(R.id.moreUsersToNotifySection);
@@ -157,27 +178,79 @@ public class MainActivity extends AppCompatActivity {
             //first turn off all errors
             invalidNameSection.setVisibility(View.GONE);
             invalidNumberSection.setVisibility(View.GONE);
+            invalidNumberSection2.setVisibility(View.GONE);
+            invalidNumberSection3.setVisibility(View.GONE);
+            invalidNumberSection4.setVisibility(View.GONE);
 
-            String name = (userNameInput.getText() != null) ? userNameInput.getText().toString() : "";
-            String phone = (userPhoneInput.getText() != null) ? userPhoneInput.getText().toString() : "";
-            if(name.isEmpty()){
-                invalidNameSection.setVisibility(View.VISIBLE);
-                return;
+            if(deviceSettings.isMonitor()){
+                String name = (userNameInput.getText() != null) ? userNameInput.getText().toString() : "";
+                String phone = (userPhoneInput.getText() != null) ? userPhoneInput.getText().toString() : "";
+                String phone2 = (userPhoneInput2.getText() != null) ? userPhoneInput2.getText().toString() : "";
+                String phone3 = (userPhoneInput3.getText() != null) ? userPhoneInput3.getText().toString() : "";
+                String phone4 = (userPhoneInput4.getText() != null) ? userPhoneInput4.getText().toString() : "";
+                if(name.isEmpty()){
+                    invalidNameSection.setVisibility(View.VISIBLE);
+                    return;
+                }
+                if(phone.length() != 10){
+                    invalidNumberSection.setVisibility(View.VISIBLE);
+                    return;
+                }
+                if(!phone.startsWith("072") && !phone.startsWith("078") && !phone.startsWith("073") && !phone.startsWith("079")){
+                    invalidNumberSection.setVisibility(View.VISIBLE);
+                    return;
+                }
+                deviceSettings.setPhoneNumberOwner1(name);
+                deviceSettings.setPhoneNumber1(phone);
+
+                deviceSettings.setPhoneNumberOwner2(userNameInput2.getText().toString());
+                deviceSettings.setPhoneNumber2(userPhoneInput2.getText().toString());
+
+                if(!phone2.isEmpty()){
+                    if(!phone2.startsWith("072") && !phone2.startsWith("078") && !phone2.startsWith("073") && !phone2.startsWith("079")){
+                        invalidNumberSection2.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                }
+
+                deviceSettings.setPhoneNumberOwner3(userNameInput3.getText().toString());
+                deviceSettings.setPhoneNumber3(userPhoneInput3.getText().toString());
+
+
+                if(!phone3.isEmpty()){
+                    if(!phone3.startsWith("072") && !phone3.startsWith("078") && !phone3.startsWith("073") && !phone3.startsWith("079")){
+                        invalidNumberSection3.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                }
+                deviceSettings.setPhoneNumberOwner4(userNameInput4.getText().toString());
+                deviceSettings.setPhoneNumber4(userPhoneInput4.getText().toString());
+
+
+                if(!phone4.isEmpty()){
+                    if(!phone4.startsWith("072") && !phone4.startsWith("078") && !phone4.startsWith("073") && !phone4.startsWith("079")){
+                        invalidNumberSection4.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                }
+            }else{
+                deviceSettings.setPhoneNumber1("");
+                deviceSettings.setPhoneNumberOwner1("");
+                deviceSettings.setPhoneNumber2("");
+                deviceSettings.setPhoneNumberOwner2("");
+                deviceSettings.setPhoneNumber3("");
+                deviceSettings.setPhoneNumberOwner3("");
+                deviceSettings.setPhoneNumber4("");
+                deviceSettings.setPhoneNumberOwner4("");
             }
-            if(phone.length() != 10){
-                invalidNumberSection.setVisibility(View.VISIBLE);
-                return;
-            }
-            if(!phone.startsWith("07")){
-                invalidNumberSection.setVisibility(View.VISIBLE);
-                return;
-            }
+
             if(deviceSettings.isInitialized()){
 
                 initialSettingsDialog.dismiss();
             }else{
                 Toast.makeText(this, "Ningombwa ko wuzuza igenamiterere.", Toast.LENGTH_LONG).show();
             }
+
         });
         builder.setView(dialogView);
         builder.setCancelable(false);

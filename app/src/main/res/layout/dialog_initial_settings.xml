@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/usersToNotifySection"
-            android:visibility="visible"
+            android:visibility="gone"
             android:padding="8dp">
             <TextView
                 android:layout_width="wrap_content"
@@ -144,6 +144,8 @@
                         android:id="@+id/userPhone2"
                         android:layout_marginBottom="16dp"
                         android:inputType="phone"/>
+
+                    <include layout="@layout/danger_alert_dialog" android:id="@+id/invalid_number_section2"/>
                 </LinearLayout>
                 <!-- User 3 -->
                 <LinearLayout
@@ -168,6 +170,8 @@
                         android:id="@+id/userPhone3"
                         android:layout_marginBottom="16dp"
                         android:inputType="phone"/>
+
+                    <include layout="@layout/danger_alert_dialog" android:id="@+id/invalid_number_section3"/>
                 </LinearLayout>
 
                 <!-- User 4 -->
@@ -193,6 +197,8 @@
                         android:id="@+id/userPhone4"
                         android:layout_marginBottom="16dp"
                         android:inputType="phone"/>
+
+                    <include layout="@layout/danger_alert_dialog" android:id="@+id/invalid_number_section4"/>
                 </LinearLayout>
 
             </LinearLayout>
