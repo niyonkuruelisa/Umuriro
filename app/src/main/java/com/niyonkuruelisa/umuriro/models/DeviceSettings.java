@@ -13,8 +13,6 @@ public class DeviceSettings implements Serializable {
     private String phoneNumberOwner3;
     private String phoneNumber4;
     private String phoneNumberOwner4;
-    private String phoneNumber5;
-    private String phoneNumberOwner5;
     private String remainingSMS;
     private String usedSMS;
     private boolean initialized = false;
@@ -105,22 +103,6 @@ public class DeviceSettings implements Serializable {
 
     public void setPhoneNumberOwner4(String phoneNumberOwner4) {
         this.phoneNumberOwner4 = phoneNumberOwner4;
-    }
-
-    public String getPhoneNumber5() {
-        return phoneNumber5;
-    }
-
-    public void setPhoneNumber5(String phoneNumber5) {
-        this.phoneNumber5 = phoneNumber5;
-    }
-
-    public String getPhoneNumberOwner5() {
-        return phoneNumberOwner5;
-    }
-
-    public void setPhoneNumberOwner5(String phoneNumberOwner5) {
-        this.phoneNumberOwner5 = phoneNumberOwner5;
     }
 
     public String getRemainingSMS() {

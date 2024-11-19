@@ -47,44 +47,6 @@ public class Helper {
             return new HashMap<>(); // Return an empty map if decoding fails
         }
     }
-
-    // Method to convert a class object DeviceSettings to map<string,string>
-    public static Map<String, String> convertDeviceSettingsToMap(DeviceSettings deviceSettings) {
-        Map<String, String> map = new HashMap<>();
-        map.put("isMonitor", deviceSettings.getIsMonitor() + "");
-        map.put("phoneNumber1", deviceSettings.getPhoneNumber1());
-        map.put("phoneNumberOwner1", deviceSettings.getPhoneNumberOwner1());
-        map.put("phoneNumber2", deviceSettings.getPhoneNumber2());
-        map.put("phoneNumberOwner2", deviceSettings.getPhoneNumberOwner2());
-        map.put("phoneNumber3", deviceSettings.getPhoneNumber3());
-        map.put("phoneNumberOwner3", deviceSettings.getPhoneNumberOwner3());
-        map.put("phoneNumber4", deviceSettings.getPhoneNumber4());
-        map.put("phoneNumberOwner4", deviceSettings.getPhoneNumberOwner4());
-        map.put("phoneNumber5", deviceSettings.getPhoneNumber5());
-        map.put("phoneNumberOwner5", deviceSettings.getPhoneNumberOwner5());
-        map.put("remainingSMS", deviceSettings.getRemainingSMS());
-        map.put("usedSMS", deviceSettings.getUsedSMS());
-        return map;
-    }
-    // Method to convert a map<string,string> to a class object DeviceSettings
-    public static DeviceSettings convertMapToDeviceSettings(Map<String, String> map) {
-        DeviceSettings deviceSettings = new DeviceSettings();
-        deviceSettings.setIsMonitor(map.get("isMonitor").equals("true"));
-        deviceSettings.setPhoneNumber1(map.get("phoneNumber1"));
-        deviceSettings.setPhoneNumberOwner1(map.get("phoneNumberOwner1"));
-        deviceSettings.setPhoneNumber2(map.get("phoneNumber2"));
-        deviceSettings.setPhoneNumberOwner2(map.get("phoneNumberOwner2"));
-        deviceSettings.setPhoneNumber3(map.get("phoneNumber3"));
-        deviceSettings.setPhoneNumberOwner3(map.get("phoneNumberOwner3"));
-        deviceSettings.setPhoneNumber4(map.get("phoneNumber4"));
-        deviceSettings.setPhoneNumberOwner4(map.get("phoneNumberOwner4"));
-        deviceSettings.setPhoneNumber5(map.get("phoneNumber5"));
-        deviceSettings.setPhoneNumberOwner5(map.get("phoneNumberOwner5"));
-        deviceSettings.setRemainingSMS(map.get("remainingSMS"));
-        deviceSettings.setUsedSMS(map.get("usedSMS"));
-        return deviceSettings;
-    }
-
     // Method to encode a class object to a Base64 string
     public static String encodeObject(Object object) {
         Log.d(TAG, "DeviceSettings to save: " + object.toString());

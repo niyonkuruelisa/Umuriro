@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -36,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private SwitchCompat powerCheckSwitchButton;
 
     private AlertDialog initialSettingsDialog;
+    private boolean isChoosing = false;
+
+    DeviceSettings deviceSettings = new DeviceSettings();
     @SuppressLint({"SetTextI18n", "InlinedApi"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,27 +98,37 @@ public class MainActivity extends AppCompatActivity {
         View dialogView = inflater.inflate(R.layout.dialog_initial_settings, null);
         Button monitorButton = dialogView.findViewById(R.id.monitorButton);
         Button recevierButton = dialogView.findViewById(R.id.receiverButton);
-        DeviceSettings deviceSettings = new DeviceSettings();
+        Button addMoreUsersButton = dialogView.findViewById(R.id.addMoreUsersButton);
+        Button okButton = dialogView.findViewById(R.id.okButton);
+
+        LinearLayout usersToNotifySection = dialogView.findViewById(R.id.usersToNotifySection);
+        LinearLayout moreUsersToNotifySection = dialogView.findViewById(R.id.moreUsersToNotifySection);
         monitorButton.setOnClickListener(v -> {
             deviceSettings.setIsMonitor(true);
+            isChoosing = true;
 
             monitorButton.setBackgroundColor(getResources().getColor(R.color.black));
             monitorButton.setTextColor(getResources().getColor(R.color.white));
 
             recevierButton.setBackgroundColor(getResources().getColor(R.color.color_button_primary));
             recevierButton.setTextColor(getResources().getColor(R.color.black));
+            ShowUsersToNotify(usersToNotifySection);
         });
         recevierButton.setOnClickListener(v -> {
+            isChoosing = true;
             deviceSettings.setIsMonitor(false);
 
             recevierButton.setBackgroundColor(getResources().getColor(R.color.black));
             recevierButton.setTextColor(getResources().getColor(R.color.white));
 
-
             monitorButton.setBackgroundColor(getResources().getColor(R.color.color_button_primary));
             monitorButton.setTextColor(getResources().getColor(R.color.black));
+            ShowUsersToNotify(usersToNotifySection);
         });
-        Button okButton = dialogView.findViewById(R.id.okButton);
+        addMoreUsersButton.setOnClickListener(v -> {
+            moreUsersToNotifySection.setVisibility(View.VISIBLE);
+            addMoreUsersButton.setVisibility(View.GONE);
+        });
 
         okButton.setOnClickListener(v -> {
             if(deviceSettings.isInitialized()){
@@ -129,6 +143,17 @@ public class MainActivity extends AppCompatActivity {
         initialSettingsDialog = builder.create();
         initialSettingsDialog.show();
     }
+
+    private void ShowUsersToNotify(LinearLayout usersToNotifySection){
+        if(isChoosing && deviceSettings.isMonitor()){
+            // show add phone number section
+            usersToNotifySection.setVisibility(View.VISIBLE);
+        }else{
+            // hide add phone number section
+            usersToNotifySection.setVisibility(View.GONE);
+        }
+    }
+
     private void requestIgnoreBatteryOptimizations() {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

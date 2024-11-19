@@ -1,67 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="20dp">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/color_secondary_variant"
-        android:layout_marginBottom="10dp"
-        android:paddingVertical="10dp">
+        android:paddingBottom="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/color_secondary_variant"
+            android:layout_marginBottom="10dp"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Igenamiterere"
+                android:textAllCaps="true"
+                android:textSize="27sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="6dp"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Igenamiterere"
-            android:textAllCaps="true"
-            android:textSize="27sp"
-            android:textColor="@color/white"
+            android:text="Murashaka gukora iki?"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
-            android:paddingBottom="6dp"/>
-    </LinearLayout>
+            android:paddingBottom="16dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Murashaka gukora iki?"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:paddingBottom="16dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:paddingBottom="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:paddingBottom="16dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gucunga"
+                android:textColor="@color/black"
+                android:id="@+id/monitorButton"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:id="@+id/receiverButton"
+                android:text="Kwakira amakuru"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/usersToNotifySection"
+            android:visibility="gone"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Andika abazajya bakira amakuru"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="12dp"/>
+            <!-- User 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:background="@color/dark_background"
+                android:padding="8dp"
+                android:layout_marginBottom="5dp"
+                android:layout_height="wrap_content">
+                <!-- Amazina -->
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Amazina (Uwambere)"
+                    android:id="@+id/userName1"
+                    android:layout_marginBottom="8dp"/>
+                <!-- Nimero -->
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nimero (Uwambere)"
+                    android:id="@+id/userPhone1"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="phone"/>
+
+            </LinearLayout>
+
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ongeramo Abandi"
+                android:textColor="@color/black"
+                android:id="@+id/addMoreUsersButton"
+                android:textSize="10sp"
+                android:drawableStart="@drawable/ic_launcher_background"
+                android:layout_gravity="start"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/moreUsersToNotifySection"
+                android:visibility="gone">
+                <!-- User 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@color/dark_background"
+                    android:padding="8dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_height="wrap_content">
+                    <!-- Amazina -->
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Amazina (Uwakabiri)"
+                        android:id="@+id/userName2"
+                        android:layout_marginBottom="8dp"/>
+                    <!-- Nimero -->
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nimero (Uwakabiri)"
+                        android:id="@+id/userPhone2"
+                        android:layout_marginBottom="16dp"
+                        android:inputType="phone"/>
+                </LinearLayout>
+                <!-- User 3 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@color/dark_background"
+                    android:padding="8dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_height="wrap_content">
+                    <!-- Amazina -->
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Amazina (Uwagatatu)"
+                        android:id="@+id/userName3"
+                        android:layout_marginBottom="8dp"/>
+                    <!-- Nimero -->
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nimero (Uwagatatu)"
+                        android:id="@+id/userPhone3"
+                        android:layout_marginBottom="16dp"
+                        android:inputType="phone"/>
+                </LinearLayout>
+
+                <!-- User 4 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@color/dark_background"
+                    android:padding="8dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_height="wrap_content">
+                    <!-- Amazina -->
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Amazina (Uwakane)"
+                        android:id="@+id/userName4"
+                        android:layout_marginBottom="8dp"/>
+                    <!-- Nimero -->
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nimero (Uwakane)"
+                        android:id="@+id/userPhone4"
+                        android:layout_marginBottom="16dp"
+                        android:inputType="phone"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gucunga"
+            android:text="Komeza"
             android:textColor="@color/black"
-            android:id="@+id/monitorButton"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:id="@+id/receiverButton"
-            android:text="Kwakira amakuru"/>
+            android:id="@+id/okButton"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Komeza"
-        android:textColor="@color/black"
-        android:id="@+id/okButton"
-        android:layout_gravity="center_horizontal"/>
-</LinearLayout>
+</ScrollView>
