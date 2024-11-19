@@ -11,11 +11,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -25,6 +28,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.niyonkuruelisa.umuriro.models.DeviceSettings;
 import com.niyonkuruelisa.umuriro.services.OfflineStorageService;
 import com.niyonkuruelisa.umuriro.services.StopAlarmReceiver;
@@ -97,10 +101,23 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_initial_settings, null);
+        EditText userNameInput = dialogView.findViewById(R.id.userName1);
+        EditText userPhoneInput = dialogView.findViewById(R.id.userPhone1);
+
         Button monitorButton = dialogView.findViewById(R.id.monitorButton);
         Button recevierButton = dialogView.findViewById(R.id.receiverButton);
         Button addMoreUsersButton = dialogView.findViewById(R.id.addMoreUsersButton);
         Button okButton = dialogView.findViewById(R.id.okButton);
+
+        LinearLayout invalidNameSection = dialogView.findViewById(R.id.invalid_name_section);
+        invalidNameSection.setVisibility(View.GONE);
+        TextView invalidNameText = invalidNameSection.findViewById(R.id.AlertTitle);
+        invalidNameText.setText("Andika izina, Ningombwa.");
+
+        LinearLayout invalidNumberSection = dialogView.findViewById(R.id.invalid_number_section);
+        invalidNumberSection.setVisibility(View.GONE);
+        TextView invalidNumberText = invalidNumberSection.findViewById(R.id.AlertTitle);
+        invalidNumberText.setText("Andika Nimero ningombwa. 07....");
 
         LinearLayout usersToNotifySection = dialogView.findViewById(R.id.usersToNotifySection);
         LinearLayout moreUsersToNotifySection = dialogView.findViewById(R.id.moreUsersToNotifySection);
@@ -137,6 +154,24 @@ public class MainActivity extends AppCompatActivity {
         });
 
         okButton.setOnClickListener(v -> {
+            //first turn off all errors
+            invalidNameSection.setVisibility(View.GONE);
+            invalidNumberSection.setVisibility(View.GONE);
+
+            String name = (userNameInput.getText() != null) ? userNameInput.getText().toString() : "";
+            String phone = (userPhoneInput.getText() != null) ? userPhoneInput.getText().toString() : "";
+            if(name.isEmpty()){
+                invalidNameSection.setVisibility(View.VISIBLE);
+                return;
+            }
+            if(phone.length() != 10){
+                invalidNumberSection.setVisibility(View.VISIBLE);
+                return;
+            }
+            if(!phone.startsWith("07")){
+                invalidNumberSection.setVisibility(View.VISIBLE);
+                return;
+            }
             if(deviceSettings.isInitialized()){
 
                 initialSettingsDialog.dismiss();
@@ -151,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void ShowUsersToNotify(LinearLayout usersToNotifySection){
+
         if(isChoosing && deviceSettings.isMonitor()){
             // show add phone number section
             usersToNotifySection.setVisibility(View.VISIBLE);

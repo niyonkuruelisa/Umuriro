@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/usersToNotifySection"
-            android:visibility="gone"
+            android:visibility="visible"
             android:padding="8dp">
             <TextView
                 android:layout_width="wrap_content"
@@ -92,6 +92,8 @@
                     android:hint="Amazina (Uwambere) *"
                     android:id="@+id/userName1"
                     android:layout_marginBottom="8dp"/>
+
+                <include layout="@layout/danger_alert_dialog" android:id="@+id/invalid_name_section"/>
                 <!-- Nimero -->
                 <EditText
                     android:layout_width="match_parent"
@@ -100,7 +102,7 @@
                     android:id="@+id/userPhone1"
                     android:layout_marginBottom="16dp"
                     android:inputType="phone"/>
-
+                <include layout="@layout/danger_alert_dialog" android:id="@+id/invalid_number_section"/>
             </LinearLayout>
 
 
