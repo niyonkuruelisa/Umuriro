@@ -7,6 +7,8 @@ import android.util.Log;
 import com.niyonkuruelisa.umuriro.helpers.Helper;
 import com.niyonkuruelisa.umuriro.models.DeviceSettings;
 
+import java.util.Map;
+
 public class OfflineStorageService {
     private static final String PREF_NAME = "OfflineStoragePref";
     private static final String DEVICE_SETTINGS = "settings";

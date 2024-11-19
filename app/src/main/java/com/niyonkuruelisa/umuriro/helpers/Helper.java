@@ -87,6 +87,7 @@ public class Helper {
 
     // Method to encode a class object to a Base64 string
     public static String encodeObject(Object object) {
+        Log.d(TAG, "DeviceSettings to save: " + object.toString());
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class DeviceSettings implements Serializable {
     private static final long serialVersionUID = 1L;
-    private boolean isMonitor = false;
+    private boolean isMonitor =  false;
     private String phoneNumber1;
     private String phoneNumberOwner1;
     private String phoneNumber2;
@@ -17,7 +17,23 @@ public class DeviceSettings implements Serializable {
     private String phoneNumberOwner5;
     private String remainingSMS;
     private String usedSMS;
+    private boolean initialized = false;
 
+    public boolean isMonitor() {
+        return isMonitor;
+    }
+
+    public void setMonitor(boolean monitor) {
+        isMonitor = monitor;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
 
     public boolean getIsMonitor() {
         return isMonitor;

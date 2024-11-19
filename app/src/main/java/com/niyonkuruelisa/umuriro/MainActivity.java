@@ -11,9 +11,13 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
@@ -23,17 +27,22 @@ import com.niyonkuruelisa.umuriro.models.DeviceSettings;
 import com.niyonkuruelisa.umuriro.services.OfflineStorageService;
 import com.niyonkuruelisa.umuriro.services.StopAlarmReceiver;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 2;
     public boolean serviceStarted =  false;
     private SwitchCompat powerCheckSwitchButton;
+
+    private AlertDialog initialSettingsDialog;
     @SuppressLint({"SetTextI18n", "InlinedApi"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        OfflineStorageService offlineStorageService = new OfflineStorageService(this);
         powerCheckSwitchButton = findViewById(R.id.buttonSwitch);
         powerCheckSwitchButton.setChecked(false);
         powerCheckSwitchButton.setEnabled(false);
@@ -61,19 +70,64 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Save initial settings
-        OfflineStorageService offlineStorageService = new OfflineStorageService(this);
-        offlineStorageService.ClearAllData();
-        DeviceSettings deviceSettings = new DeviceSettings();
-        deviceSettings.setIsMonitor(true);
-        deviceSettings.setPhoneNumber1("+250788888888");
-        offlineStorageService.createDeviceSettings(new DeviceSettings());
+
+        // check if device has settings if not then ask for them
         // get saved settings and log them
         DeviceSettings savedSettings = offlineStorageService.getDeviceSettings();
+        // Clear everything for now to make sure we are getting the right settings
+        offlineStorageService.ClearAllData();
 
-        Log.d("DeviceSettings", "info: " + savedSettings.toString());
-        Log.d("DeviceSettings", savedSettings.getIsMonitor() + "");
-        Log.d("DeviceSettings", savedSettings.getPhoneNumber1() + "");
+        if(savedSettings == null){
+            // display a custom dialog, with OK button to ask for settings
+            Log.d("DeviceSettings", "No settings found, asking for them");
+            chooseInitSettingsDialog();
+        }
+        // Save initial settings
+    }
+
+    private void chooseInitSettingsDialog(){
+        // Display a dialog to ask for settings
+        // Save the settings
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_initial_settings, null);
+        Button monitorButton = dialogView.findViewById(R.id.monitorButton);
+        Button recevierButton = dialogView.findViewById(R.id.receiverButton);
+        DeviceSettings deviceSettings = new DeviceSettings();
+        monitorButton.setOnClickListener(v -> {
+            deviceSettings.setIsMonitor(true);
+
+            monitorButton.setBackgroundColor(getResources().getColor(R.color.black));
+            monitorButton.setTextColor(getResources().getColor(R.color.white));
+
+            recevierButton.setBackgroundColor(getResources().getColor(R.color.color_button_primary));
+            recevierButton.setTextColor(getResources().getColor(R.color.black));
+        });
+        recevierButton.setOnClickListener(v -> {
+            deviceSettings.setIsMonitor(false);
+
+            recevierButton.setBackgroundColor(getResources().getColor(R.color.black));
+            recevierButton.setTextColor(getResources().getColor(R.color.white));
+
+
+            monitorButton.setBackgroundColor(getResources().getColor(R.color.color_button_primary));
+            monitorButton.setTextColor(getResources().getColor(R.color.black));
+        });
+        Button okButton = dialogView.findViewById(R.id.okButton);
+
+        okButton.setOnClickListener(v -> {
+            if(deviceSettings.isInitialized()){
+
+                initialSettingsDialog.dismiss();
+            }else{
+                Toast.makeText(this, "Ningombwa ko wuzuza igenamiterere.", Toast.LENGTH_LONG).show();
+            }
+        });
+        builder.setView(dialogView);
+        builder.setCancelable(false);
+        initialSettingsDialog = builder.create();
+        initialSettingsDialog.show();
     }
     private void requestIgnoreBatteryOptimizations() {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);

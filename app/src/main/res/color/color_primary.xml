@@ -6,8 +6,8 @@
     <!--When Button is in pressed state -->
     <item android:state_pressed="true" android:color="#22a540" />
     <!--When Button is in selected state -->
-    <item android:state_selected="true" android:color="#007acc" />
+    <item android:state_selected="true" android:color="#38cfcb" />
     <!--Default Background Color -->
-    <item android:color="#007acc" />
+    <item android:color="#38cfcb" />
 
 </selector>
