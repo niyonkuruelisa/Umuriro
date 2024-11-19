@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -88,14 +89,14 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Amazina (Uwambere)"
+                    android:hint="Amazina (Uwambere) *"
                     android:id="@+id/userName1"
                     android:layout_marginBottom="8dp"/>
                 <!-- Nimero -->
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Nimero (Uwambere)"
+                    android:hint="Nimero (Uwambere) *"
                     android:id="@+id/userPhone1"
                     android:layout_marginBottom="16dp"
                     android:inputType="phone"/>
@@ -106,11 +107,11 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ongeramo Abandi"
+                android:text="Ongera Abandi"
+                android:drawableLeft="@drawable/add_circle_black"
+                android:background="@drawable/rounded_button"
                 android:textColor="@color/black"
                 android:id="@+id/addMoreUsersButton"
-                android:textSize="10sp"
-                android:drawableStart="@drawable/ic_launcher_background"
                 android:layout_gravity="start"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -197,10 +198,13 @@
         </LinearLayout>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/rounded_save_button"
+            app:backgroundTint="@null"
             android:text="Komeza"
-            android:textColor="@color/black"
+            android:layout_marginHorizontal="10dp"
+            android:textColor="@color/white"
             android:id="@+id/okButton"
             android:layout_gravity="center_horizontal"/>
     </LinearLayout>

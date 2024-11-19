@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -103,14 +104,17 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout usersToNotifySection = dialogView.findViewById(R.id.usersToNotifySection);
         LinearLayout moreUsersToNotifySection = dialogView.findViewById(R.id.moreUsersToNotifySection);
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable icon = getResources().getDrawable(R.drawable.check_circle_white);
         monitorButton.setOnClickListener(v -> {
             deviceSettings.setIsMonitor(true);
             isChoosing = true;
 
             monitorButton.setBackgroundColor(getResources().getColor(R.color.black));
             monitorButton.setTextColor(getResources().getColor(R.color.white));
+            monitorButton.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
             recevierButton.setBackgroundColor(getResources().getColor(R.color.color_button_primary));
+            recevierButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
             recevierButton.setTextColor(getResources().getColor(R.color.black));
             ShowUsersToNotify(usersToNotifySection);
         });
@@ -120,9 +124,11 @@ public class MainActivity extends AppCompatActivity {
 
             recevierButton.setBackgroundColor(getResources().getColor(R.color.black));
             recevierButton.setTextColor(getResources().getColor(R.color.white));
+            recevierButton.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
             monitorButton.setBackgroundColor(getResources().getColor(R.color.color_button_primary));
             monitorButton.setTextColor(getResources().getColor(R.color.black));
+            monitorButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
             ShowUsersToNotify(usersToNotifySection);
         });
         addMoreUsersButton.setOnClickListener(v -> {
