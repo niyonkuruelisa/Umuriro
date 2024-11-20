@@ -38,11 +38,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 2;
+    private static final int REQUEST_READ_SMS_PERMISSION = 1;
     public boolean serviceStarted =  false;
     private SwitchCompat powerCheckSwitchButton;
 
     private AlertDialog initialSettingsDialog;
     private boolean isChoosing = false;
+    OfflineStorageService offlineStorageService;
 
     DeviceSettings deviceSettings = new DeviceSettings();
     @SuppressLint({"SetTextI18n", "InlinedApi"})
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        OfflineStorageService offlineStorageService = new OfflineStorageService(this);
+        offlineStorageService = new OfflineStorageService(this);
         powerCheckSwitchButton = findViewById(R.id.buttonSwitch);
         powerCheckSwitchButton.setChecked(false);
         powerCheckSwitchButton.setEnabled(false);
@@ -62,7 +64,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             powerCheckSwitchButton.setEnabled(true);
         }
-
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+        }
         powerCheckSwitchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
                 powerCheckSwitchButton.setText("Hagarika gucunga...");
@@ -79,12 +83,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         // check if device has settings if not then ask for them
         // get saved settings and log them
-        DeviceSettings savedSettings = offlineStorageService.getDeviceSettings();
         // Clear everything for now to make sure we are getting the right settings
         offlineStorageService.ClearAllData();
+        DeviceSettings savedSettings = offlineStorageService.getDeviceSettings();
 
         if(savedSettings == null){
             // display a custom dialog, with OK button to ask for settings
@@ -97,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
     private void chooseInitSettingsDialog(){
         // Display a dialog to ask for settings
         // Save the settings
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_initial_settings, null);
@@ -182,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
             invalidNumberSection3.setVisibility(View.GONE);
             invalidNumberSection4.setVisibility(View.GONE);
 
+
             if(deviceSettings.isMonitor()){
                 String name = (userNameInput.getText() != null) ? userNameInput.getText().toString() : "";
                 String phone = (userPhoneInput.getText() != null) ? userPhoneInput.getText().toString() : "";
@@ -234,23 +237,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }else{
-                deviceSettings.setPhoneNumber1("");
-                deviceSettings.setPhoneNumberOwner1("");
-                deviceSettings.setPhoneNumber2("");
-                deviceSettings.setPhoneNumberOwner2("");
-                deviceSettings.setPhoneNumber3("");
-                deviceSettings.setPhoneNumberOwner3("");
-                deviceSettings.setPhoneNumber4("");
-                deviceSettings.setPhoneNumberOwner4("");
+                try{
+                    deviceSettings.setPhoneNumber1("");
+                    deviceSettings.setPhoneNumberOwner1("");
+                    deviceSettings.setPhoneNumber2("");
+                    deviceSettings.setPhoneNumberOwner2("");
+                    deviceSettings.setPhoneNumber3("");
+                    deviceSettings.setPhoneNumberOwner3("");
+                    deviceSettings.setPhoneNumber4("");
+                    deviceSettings.setPhoneNumberOwner4("");
+                }catch (Exception ex){
+                    Log.e("DeviceSettings", ex.getMessage());
+                }
+
             }
 
-            if(deviceSettings.isInitialized()){
-
+            if(isChoosing && offlineStorageService != null){
+                offlineStorageService.createDeviceSettings(deviceSettings);
                 initialSettingsDialog.dismiss();
+                Toast.makeText(this, "Murakoze! Habitswe igenamiterere.", Toast.LENGTH_LONG).show();
+                startSMSCheckerService();
             }else{
                 Toast.makeText(this, "Ningombwa ko wuzuza igenamiterere.", Toast.LENGTH_LONG).show();
             }
-
         });
         builder.setView(dialogView);
         builder.setCancelable(false);
@@ -289,11 +298,24 @@ public class MainActivity extends AppCompatActivity {
                 // Permission denied, handle accordingly
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS}, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             }
+        }else if(requestCode == REQUEST_READ_SMS_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                // Permission denied, handle accordingly
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+            }
         }
     }
     private void startChargingService() {
         Intent intent = new Intent(this, com.niyonkuruelisa.umuriro.services.ChargingService.class);
         ContextCompat.startForegroundService(this, intent);
         Log.d("ChargingService", "Service created outside.");
+    }
+    private void startSMSCheckerService() {
+/*        Intent intent = new Intent(this, com.niyonkuruelisa.umuriro.services.SMSCheckerService.class);
+        ContextCompat.startForegroundService(this, intent);
+        Log.d("SMSCheckerService", "Service created outside.");*/
+        Log.d("SMSCheckerService", "Service created outside.");
+        Intent intent = new Intent(this, com.niyonkuruelisa.umuriro.services.SMSCheckerService.class);
+        startService(intent);
     }
 }

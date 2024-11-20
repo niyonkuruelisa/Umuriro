@@ -10,10 +10,20 @@ import androidx.core.content.ContextCompat;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        OfflineStorageService offlineStorageService = new OfflineStorageService(context);
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Intent serviceIntent = new Intent(context, com.niyonkuruelisa.umuriro.services.ChargingService.class);
-            ContextCompat.startForegroundService(context, serviceIntent);
-            Log.d("BootReceiver", "ChargingService started after boot.");
+            if(offlineStorageService.getDeviceSettings() != null){
+                Intent serviceIntent;
+                if(offlineStorageService.getDeviceSettings().isMonitor()){
+                    serviceIntent = new Intent(context, com.niyonkuruelisa.umuriro.services.ChargingService.class);
+                    Log.d("BootReceiver", "ChargingService started after boot.");
+                }else{
+                    serviceIntent = new Intent(context, com.niyonkuruelisa.umuriro.services.SMSCheckerService.class);
+                    Log.d("BootReceiver", "SMSCheckerService started after boot.");
+                }
+                ContextCompat.startForegroundService(context, serviceIntent);
+            }
         }
     }
 }
