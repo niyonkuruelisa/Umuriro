@@ -22,7 +22,7 @@ public class SMSCheckerService extends Service {
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
 
-    private static final long CHECK_INTERVAL = 600000; // 10 min | seconds
+    private static final long CHECK_INTERVAL = 5000; // 5 seconds
     private Handler handler;
     private Runnable smsCheckRunnable;
 
@@ -51,17 +51,20 @@ public class SMSCheckerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("SMSService", "onStartCommand called");
         // Check if the intent contains the RemoteInput results
-        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-        if (remoteInput != null) {
-            CharSequence replyText = remoteInput.getCharSequence("key_text_reply");
-            if (replyText != null) {
-                Log.d(TAG, "Reply received: " + replyText);
-                // Handle the reply text here
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-                notificationManager.cancel(13);
+        try{
+            Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+            if (remoteInput != null) {
+                CharSequence replyText = remoteInput.getCharSequence("key_text_reply");
+                if (replyText != null) {
+                    Log.d(TAG, "Reply received: " + replyText);
+                    // Handle the reply text here
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                    notificationManager.cancel(13);
+                }
             }
+        }catch (Exception e){
+            Log.d("SMSService", "Error: "+e.getMessage());
         }
-
         handler.post(smsCheckRunnable);
         return START_STICKY;
     }
