@@ -8,11 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.telephony.SmsManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
 import com.niyonkuruelisa.umuriro.R;
+import com.niyonkuruelisa.umuriro.models.DeviceSettings;
+
+import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "AlarmReceiver";
@@ -20,9 +26,13 @@ public class AlarmReceiver extends BroadcastReceiver {
     private static final int NOTIFICATION_ID = 0;
     private static MediaPlayer mediaPlayer;
     private static Context context;
+    private int times  = 0;
+    OfflineStorageService offlineStorageService;
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Alarm triggered because the device is not charging");
+        offlineStorageService = new OfflineStorageService(context);
+        times = intent.getIntExtra("times", 0);
+        Log.d(TAG, "Alarm triggered because the device is not charging: " + times);
 
         // Play alarm sound
         if (mediaPlayer == null) {
@@ -59,9 +69,56 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         // Show the notification
         notificationManager.notify(0, builder.build());
+        if(times == 5){
+            Log.d(TAG, "Sending SMS to emergency contacts");
+            SendSMSToEmergencyContacts();
+        }
         this.context = context;
     }
 
+
+    private void SendSMSToEmergencyContacts() {
+        // Get emergency contacts from local storage
+        DeviceSettings deviceSettings = offlineStorageService.getDeviceSettings();
+        if(deviceSettings == null){
+            Log.d(TAG, "Device settings not found");
+            return;
+        }
+
+
+        // Get the SubscriptionManager and list of active subscriptions
+        SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+
+        if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
+            // Assuming you want to use the second SIM card (index 1)
+            // Find carrier subscription info by Network name
+            if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("airtel")){
+                Log.d(TAG, "Airtel found");
+            }else if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("mtn")){
+                Log.d(TAG, "MTN found");
+            }
+            SubscriptionInfo subscriptionInfo = subscriptionInfoList.get(0);
+            int subscriptionId = subscriptionInfo.getSubscriptionId();
+
+            // Get the SmsManager for the specific subscription ID
+            SmsManager smsManager = SmsManager.getSmsManagerForSubscriptionId(subscriptionId);
+            String message = "Emergency! The device is not charging.";
+
+            if (deviceSettings.getPhoneNumber1() != null) {
+                // Send SMS to phone number 1
+                try {
+                    //smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
+                    Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using SIM " + subscriptionId);
+                } catch (Exception exception) {
+                    Log.d(TAG, "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage());
+                }
+            }
+        } else {
+            Log.d(TAG, "No active SIM cards found");
+        }
+        // Send SMS to each emergency contact
+    }
     public static MediaPlayer getMediaPlayer() {
 
         return mediaPlayer;

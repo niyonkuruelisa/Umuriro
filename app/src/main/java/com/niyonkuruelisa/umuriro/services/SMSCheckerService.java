@@ -49,7 +49,7 @@ public class SMSCheckerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("SMSService", "onStartCommand called");
+        Log.d(TAG, "onStartCommand called");
         // Check if the intent contains the RemoteInput results
         try{
             Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);

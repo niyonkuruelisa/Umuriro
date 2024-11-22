@@ -27,6 +27,7 @@ public class ChargingService extends Service {
     private static final String TAG = "ChargingService";
     private static final String CHANNEL_ID = "ChargingServiceChannel";
     private static final int NOTIFICATION_ID = 1;
+    private int times = 0;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -37,9 +38,14 @@ public class ChargingService extends Service {
                 // Cancel the alarm if charging
                 alarmManager.cancel(alarmIntent);
             } else {
+                times++;
                 Log.d(TAG, "Not charging");
+
                 // Set the alarm to trigger after 5 seconds
-                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, alarmIntent);
+                Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+                alarmIntent.putExtra("times", times);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, times, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
+                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, pendingIntent);
             }
         }
     };
@@ -53,6 +59,7 @@ public class ChargingService extends Service {
         // Initialize AlarmManager
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("times", times);
         alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 
