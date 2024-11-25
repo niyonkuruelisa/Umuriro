@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }else{
-            Log.d("DeviceSettings", "Device settings found" + new Gson().toJson(savedSettings).toString());
+            //Log.d("DeviceSettings", "Device settings found" + new Gson().toJson(savedSettings).toString());
             if(savedSettings.isPermissionsGranted() && !savedSettings.isInitialized()){
                 chooseInitSettingsDialog();
             }
