@@ -31,22 +31,25 @@ public class ChargingService extends Service {
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
-            if (isCharging) {
-                Log.d(TAG, "Charging");
-                // Cancel the alarm if charging
-                alarmManager.cancel(alarmIntent);
-            } else {
-                times++;
-                Log.d(TAG, "Not charging");
+        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
+        if (isCharging) {
+            Log.d(TAG, "Charging");
+            times = 0;
+            // Cancel the alarm if charging
+            alarmManager.cancel(alarmIntent);
+        } else {
+            if (times == 9)
+                times = 0;
+            times++;
+            Log.d(TAG, "Not charging");
 
-                // Set the alarm to trigger after 5 seconds
-                Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-                alarmIntent.putExtra("times", times);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, times, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
-                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, pendingIntent);
-            }
+            // Set the alarm to trigger after 5 seconds
+            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+            alarmIntent.putExtra("times", times);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, times, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 36000, pendingIntent);
+        }
         }
     };
 

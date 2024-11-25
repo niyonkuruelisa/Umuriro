@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.Layout;
@@ -29,6 +31,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
 import com.niyonkuruelisa.umuriro.models.DeviceSettings;
 import com.niyonkuruelisa.umuriro.services.OfflineStorageService;
 import com.niyonkuruelisa.umuriro.services.StopAlarmReceiver;
@@ -44,9 +47,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean serviceStarted =  false;
     private SwitchCompat powerCheckSwitchButton;
 
-    private AlertDialog initialSettingsDialog;
+    private AlertDialog initialSettingsDialog = null;
     private boolean isChoosing = false;
     OfflineStorageService offlineStorageService;
+
+    private boolean readSMSPermissionGranted = false;
+    private boolean sendSMSPermissionGranted = false;
+    private boolean readPhoneStatePermissionGranted = false;
+    private boolean requestedSendSMSPermission = false;
+    private boolean requestedReadSMSPermission = false;
+    private boolean requestedReadPhoneStatePermission = false;
 
     DeviceSettings deviceSettings = new DeviceSettings();
     @SuppressLint({"SetTextI18n", "InlinedApi"})
@@ -54,57 +64,98 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
         offlineStorageService = new OfflineStorageService(this);
-        powerCheckSwitchButton = findViewById(R.id.buttonSwitch);
-        powerCheckSwitchButton.setChecked(false);
-        powerCheckSwitchButton.setEnabled(false);
-        powerCheckSwitchButton.setText("Tangira gucunga");
+
+        if(offlineStorageService.getDeviceSettings() != null && offlineStorageService.getDeviceSettings().isInitialized()){
+            if(offlineStorageService.getDeviceSettings().isMonitor()){
+                setContentView(R.layout.activity_main_monitor);
+
+                powerCheckSwitchButton = findViewById(R.id.buttonSwitch);
+                powerCheckSwitchButton.setChecked(false);
+                powerCheckSwitchButton.setEnabled(false);
+                powerCheckSwitchButton.setText("Tangira gucunga");
+
+                powerCheckSwitchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if(isChecked){
+                        powerCheckSwitchButton.setText("Hagarika gucunga...");
+                        serviceStarted =  true;
+                        startChargingService();
+                    }else{
+                        powerCheckSwitchButton.setText("Tangira gucunga");
+                        //we need to stop the service
+                        serviceStarted = false;
+                        Intent stopIntent = new Intent(buttonView.getContext(), StopAlarmReceiver.class);
+                        buttonView.getContext().sendBroadcast(stopIntent);
+                        Intent intent = new Intent(MainActivity.this, com.niyonkuruelisa.umuriro.services.ChargingService.class);
+                        stopService(intent);
+                    }
+                });
+            }else{
+                setContentView(R.layout.activity_main_receiver);
+            }
+        }else{
+            setContentView(R.layout.activity_main);
+        }
+        checkForPermissions();
         requestIgnoreBatteryOptimizations();
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS}, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
         } else {
-            powerCheckSwitchButton.setEnabled(true);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
-        }
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
-        }
-        powerCheckSwitchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if(isChecked){
-                powerCheckSwitchButton.setText("Hagarika gucunga...");
-                serviceStarted =  true;
-                startChargingService();
-            }else{
-                powerCheckSwitchButton.setText("Tangira gucunga");
-                //we need to stop the service
-                serviceStarted = false;
-                Intent stopIntent = new Intent(buttonView.getContext(), StopAlarmReceiver.class);
-                buttonView.getContext().sendBroadcast(stopIntent);
-                Intent intent = new Intent(MainActivity.this, com.niyonkuruelisa.umuriro.services.ChargingService.class);
-                stopService(intent);
+            if(offlineStorageService.getDeviceSettings() != null && offlineStorageService.getDeviceSettings().isInitialized() && offlineStorageService.getDeviceSettings().isMonitor()){
+
+                powerCheckSwitchButton.setEnabled(true);
+                Log.d("MainActivity", "Battery optimization permission granted");
             }
-        });
-
-        // check if device has settings if not then ask for them
-        // get saved settings and log them
-        // Clear everything for now to make sure we are getting the right settings
-        DeviceSettings savedSettings = offlineStorageService.getDeviceSettings();
-
-        if(savedSettings == null){
-            // display a custom dialog, with OK button to ask for settings
-            Log.d("DeviceSettings", "No settings found, asking for them");
-            chooseInitSettingsDialog();
         }
-        // Save initial settings
-    }
 
+        ShowInitialSettings();
+    }
+    private void checkForPermissions(){
+        try{
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    if(!requestedReadSMSPermission){
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+                        requestedReadSMSPermission = true;
+                    }
+                }else{
+                    readSMSPermissionGranted = true;
+                    Log.d("MainActivity", "Read SMS permission granted");
+                }
+            });
+            handler.postDelayed(() -> {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    if (!requestedReadPhoneStatePermission) {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                        requestedReadPhoneStatePermission = true;
+                    }
+                }else{
+                    readPhoneStatePermissionGranted = true;
+                    Log.d("MainActivity", "Read Phone State permission granted");
+                }
+            }, 2000); // Delay for 1 second
+
+            handler.postDelayed(() -> {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    if(!requestedSendSMSPermission){
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
+                        requestedSendSMSPermission = true;
+                    }
+                }else{
+                    sendSMSPermissionGranted = true;
+                    Log.d("MainActivity", "Send SMS permission granted");
+                }
+            }, 4000); // Delay for 2 seconds
+        }catch (Exception exception){
+            Log.d("MainActivity", exception.getMessage());
+        }
+
+    }
     private void chooseInitSettingsDialog(){
+        // Make sure one settings dialog is displayed.
+        if(initialSettingsDialog != null) return;
         // Display a dialog to ask for settings
         // Save the settings
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -184,6 +235,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         okButton.setOnClickListener(v -> {
+            // check for permissions
+            checkForPermissions();
             //first turn off all errors
             invalidNameSection.setVisibility(View.GONE);
             invalidNumberSection.setVisibility(View.GONE);
@@ -260,14 +313,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if(isChoosing && offlineStorageService != null){
+                deviceSettings.setInitialized(true);
                 offlineStorageService.createDeviceSettings(deviceSettings);
                 initialSettingsDialog.dismiss();
+                initialSettingsDialog = null;
                 Toast.makeText(this, "Murakoze! Habitswe igenamiterere.", Toast.LENGTH_LONG).show();
 
                 if(deviceSettings.isMonitor()){
+                    setContentView(R.layout.activity_main_monitor);
                     startChargingService();
 
                 }else{
+                    setContentView(R.layout.activity_main_receiver);
                     startSMSCheckerService();
                 }
             }else{
@@ -280,6 +337,55 @@ public class MainActivity extends AppCompatActivity {
         initialSettingsDialog.show();
     }
 
+    @SuppressLint("UnsafeIntentLaunch")
+    private void ShowInitialSettings(){
+        // check if device has permissions if not then ask for them
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        handler.post(() -> {
+            if (!readPhoneStatePermissionGranted) {
+                checkForPermissions();
+            }
+        });
+
+        handler.postDelayed(() -> {
+            if (!readSMSPermissionGranted) {
+                checkForPermissions();
+            }
+        }, 1000); // Delay for 1 second
+
+        handler.postDelayed(() -> {
+            if (!sendSMSPermissionGranted) {
+                checkForPermissions();
+            }
+        }, 2000); // Delay for 2 seconds
+
+        // check if device has settings if not then ask for them
+        // get saved settings
+        DeviceSettings savedSettings = offlineStorageService.getDeviceSettings();
+        if(savedSettings == null){
+            // display a custom dialog, with OK button to ask for settings
+
+            if (readPhoneStatePermissionGranted && readSMSPermissionGranted && sendSMSPermissionGranted) {
+
+
+                Intent intent = getIntent();
+                savedSettings =  new DeviceSettings();
+                savedSettings.setPermissionsGranted(true);
+                deviceSettings = savedSettings;
+                offlineStorageService.createDeviceSettings(savedSettings);
+                assert intent != null;
+                finish();
+                startActivity(intent);
+            }
+
+        }else{
+            Log.d("DeviceSettings", "Device settings found" + new Gson().toJson(savedSettings).toString());
+            if(savedSettings.isPermissionsGranted() && !savedSettings.isInitialized()){
+                chooseInitSettingsDialog();
+            }
+        }
+    }
     private void ShowUsersToNotify(LinearLayout usersToNotifySection){
 
         if(isChoosing && deviceSettings.isMonitor()){
@@ -315,16 +421,28 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 // Permission denied, handle accordingly
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+            }else{
+                readSMSPermissionGranted = true;
+                ShowInitialSettings();
+                Log.d("RuntimePermission", "Read SMS permission granted");
             }
         }else if(requestCode == REQUEST_SEND_SMS_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 // Permission denied, handle accordingly
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
+            }else{
+                sendSMSPermissionGranted = true;
+                ShowInitialSettings();
+                Log.d("RuntimePermission", "Send SMS permission granted");
             }
         }else if(requestCode == REQUEST_READ_PHONE_STATE) {
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 // Permission denied, handle accordingly
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+            }else{
+                readPhoneStatePermissionGranted = true;
+                ShowInitialSettings();
+                Log.d("RuntimePermission", "Read Phone State permission granted");
             }
         }
     }

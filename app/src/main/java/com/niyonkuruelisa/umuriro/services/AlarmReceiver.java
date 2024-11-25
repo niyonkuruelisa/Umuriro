@@ -69,7 +69,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         // Show the notification
         notificationManager.notify(0, builder.build());
-        if(times == 5){
+        if(times == 9){
             Log.d(TAG, "Sending SMS to emergency contacts");
             SendSMSToEmergencyContacts();
         }
@@ -85,38 +85,43 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
 
+        try{
+            // Get the SubscriptionManager and list of active subscriptions
+            SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
 
-        // Get the SubscriptionManager and list of active subscriptions
-        SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-        List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-
-        if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
-            // Assuming you want to use the second SIM card (index 1)
-            // Find carrier subscription info by Network name
-            if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("airtel")){
-                Log.d(TAG, "Airtel found");
-            }else if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("mtn")){
-                Log.d(TAG, "MTN found");
-            }
-            SubscriptionInfo subscriptionInfo = subscriptionInfoList.get(0);
-            int subscriptionId = subscriptionInfo.getSubscriptionId();
-
-            // Get the SmsManager for the specific subscription ID
-            SmsManager smsManager = SmsManager.getSmsManagerForSubscriptionId(subscriptionId);
-            String message = "Emergency! The device is not charging.";
-
-            if (deviceSettings.getPhoneNumber1() != null) {
-                // Send SMS to phone number 1
-                try {
-                    //smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
-                    Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using SIM " + subscriptionId);
-                } catch (Exception exception) {
-                    Log.d(TAG, "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage());
+            if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
+                // Assuming you want to use the second SIM card (index 1)
+                // Find carrier subscription info by Network name
+                if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("airtel")){
+                    Log.d(TAG, "Airtel found");
+                }else if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("mtn")){
+                    Log.d(TAG, "MTN found");
                 }
+
+                SubscriptionInfo subscriptionInfo = subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("mtn") ? subscriptionInfoList.get(0) : subscriptionInfoList.get(1);
+                int subscriptionId = subscriptionInfo.getSubscriptionId();
+
+                // Get the SmsManager for the specific subscription ID
+                SmsManager smsManager = SmsManager.getSmsManagerForSubscriptionId(subscriptionId);
+                String message = "Emergency! The device is not charging.";
+
+                if (deviceSettings.getPhoneNumber1() != null) {
+                    // Send SMS to phone number 1
+                    try {
+                        //smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
+                        Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using SIM " + subscriptionId);
+                    } catch (Exception exception) {
+                        Log.d(TAG, "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage());
+                    }
+                }
+            } else {
+                Log.d(TAG, "No active SIM cards found");
             }
-        } else {
-            Log.d(TAG, "No active SIM cards found");
+        }catch (Exception exception){
+            Log.d(TAG, "Something went wrong: "+exception.getMessage());
         }
+
         // Send SMS to each emergency contact
     }
     public static MediaPlayer getMediaPlayer() {

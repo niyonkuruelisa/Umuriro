@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class DeviceSettings implements Serializable {
     private static final long serialVersionUID = 1L;
     private boolean isMonitor =  false;
+    private boolean permissionsGranted = false;
     private String phoneNumber1;
     private String phoneNumberOwner1;
     private String phoneNumber2;
@@ -16,6 +17,14 @@ public class DeviceSettings implements Serializable {
     private String remainingSMS;
     private String usedSMS;
     private boolean initialized = false;
+
+    public boolean isPermissionsGranted() {
+        return permissionsGranted;
+    }
+
+    public void setPermissionsGranted(boolean permissionsGranted) {
+        this.permissionsGranted = permissionsGranted;
+    }
 
     public boolean isMonitor() {
         return isMonitor;

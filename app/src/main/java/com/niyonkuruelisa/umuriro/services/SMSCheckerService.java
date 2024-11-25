@@ -82,19 +82,28 @@ public class SMSCheckerService extends Service {
 
     @SuppressLint("Range")
     private String getLatestSMS() {
-        Uri uri = Uri.parse("content://sms/inbox");
-        ContentResolver contentResolver = getContentResolver();
-        Cursor cursor = contentResolver.query(uri, null, null, null, "date DESC");
-        String message = null;
-        if (cursor != null && cursor.move(new Random().nextInt(cursor.getCount()))) {
-            @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex("_id"));
-            @SuppressLint("Range") long timestamp = cursor.getLong(cursor.getColumnIndex("date"));
-            Log.d(TAG, "SMS ID: " + id + ", Timestamp: " + timestamp);
-            //TODO: check if we already have sms timestamp in our storage. If we do, return null
-            message = cursor.getString(cursor.getColumnIndex("body"));
 
-            cursor.close();
+        try{
+            Uri uri = Uri.parse("content://sms/inbox");
+            ContentResolver contentResolver = getContentResolver();
+            Cursor cursor = contentResolver.query(uri, null, null, null, "date DESC");
+            String message = null;
+            if (cursor != null && cursor.move(new Random().nextInt(cursor.getCount()))) {
+                @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex("_id"));
+                @SuppressLint("Range") long timestamp = cursor.getLong(cursor.getColumnIndex("date"));
+                Log.d(TAG, "SMS ID: " + id + ", Timestamp: " + timestamp);
+                //TODO: check if we already have sms timestamp in our storage. If we do, return null
+                message = cursor.getString(cursor.getColumnIndex("body"));
+
+                cursor.close();
+            }
+
+            return message;
+        }catch (Exception e){
+            Log.d("SMSService", "Error: "+e.getMessage());
+
+            return null;
         }
-        return message;
+
     }
 }
