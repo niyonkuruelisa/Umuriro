@@ -19,6 +19,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import com.niyonkuruelisa.umuriro.MainActivity;
+import com.niyonkuruelisa.umuriro.models.DeviceSettings;
 
 public class ChargingService extends Service {
     private AlarmManager alarmManager;
@@ -28,13 +29,17 @@ public class ChargingService extends Service {
     private static final String CHANNEL_ID = "ChargingServiceChannel";
     private static final int NOTIFICATION_ID = 1;
     private int times = 0;
+    private OfflineStorageService offlineStorageService;
+    private DeviceSettings deviceSettings;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+        offlineStorageService = new OfflineStorageService(context);
+        deviceSettings = offlineStorageService.getDeviceSettings();
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
         if (isCharging) {
-            Log.d(TAG, "Charging");
+            //Log.d(TAG, "Charging");
             times = 0;
             // Cancel the alarm if charging
             alarmManager.cancel(alarmIntent);
@@ -42,13 +47,24 @@ public class ChargingService extends Service {
             if (times == 9)
                 times = 0;
             times++;
-            Log.d(TAG, "Not charging");
+            //Log.d(TAG, "Not charging");
 
             // Set the alarm to trigger after 5 seconds
             Intent alarmIntent = new Intent(context, AlarmReceiver.class);
             alarmIntent.putExtra("times", times);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, times, alarmIntent, PendingIntent.FLAG_IMMUTABLE);
-            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 36000, pendingIntent);
+            //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 36000, pendingIntent);
+            // Cancel any existing alarm
+            alarmManager.cancel(pendingIntent);
+
+            if(deviceSettings.getAlarmTriggerMilliseconds() == 0){
+                deviceSettings.setAlarmTriggerMilliseconds(30000);
+                offlineStorageService.createDeviceSettings(deviceSettings);
+            }
+            Log.d(TAG, "Alarm triggered milliseconds: " + deviceSettings.getAlarmTriggerMilliseconds());
+            // Set the new alarm to trigger after 10 seconds
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + deviceSettings.getAlarmTriggerMilliseconds(), pendingIntent);
+            //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 3600, pendingIntent);
         }
         }
     };

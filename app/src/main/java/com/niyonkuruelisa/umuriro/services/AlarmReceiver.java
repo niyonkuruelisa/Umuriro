@@ -69,7 +69,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         // Show the notification
         notificationManager.notify(0, builder.build());
-        if(times == 9){
+        if(times == 3 || times == 5){
             Log.d(TAG, "Sending SMS to emergency contacts");
             SendSMSToEmergencyContacts();
         }
@@ -93,10 +93,11 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
                 // Assuming you want to use the second SIM card (index 1)
                 // Find carrier subscription info by Network name
+                String CarrierName = "";
                 if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("airtel")){
-                    Log.d(TAG, "Airtel found");
+                    CarrierName = "Airtel";
                 }else if(subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("mtn")){
-                    Log.d(TAG, "MTN found");
+                    CarrierName = "MTN";;
                 }
 
                 SubscriptionInfo subscriptionInfo = subscriptionInfoList.get(0).getCarrierName().toString().toLowerCase().contains("mtn") ? subscriptionInfoList.get(0) : subscriptionInfoList.get(1);
@@ -110,7 +111,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     // Send SMS to phone number 1
                     try {
                         //smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
-                        Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using SIM " + subscriptionId);
+                        Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using " + CarrierName + " SIM card");
                     } catch (Exception exception) {
                         Log.d(TAG, "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage());
                     }

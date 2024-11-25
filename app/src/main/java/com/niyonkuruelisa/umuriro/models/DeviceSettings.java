@@ -17,6 +17,15 @@ public class DeviceSettings implements Serializable {
     private String remainingSMS;
     private String usedSMS;
     private boolean initialized = false;
+    private int alarmTriggerMilliseconds = 30000;
+
+    public int getAlarmTriggerMilliseconds() {
+        return alarmTriggerMilliseconds;
+    }
+
+    public void setAlarmTriggerMilliseconds(int alarmTriggerMilliseconds) {
+        this.alarmTriggerMilliseconds = alarmTriggerMilliseconds;
+    }
 
     public boolean isPermissionsGranted() {
         return permissionsGranted;
