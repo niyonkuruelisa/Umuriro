@@ -18,6 +18,15 @@ public class DeviceSettings implements Serializable {
     private String usedSMS;
     private boolean initialized = false;
     private int alarmTriggerMilliseconds = 30000;
+    private String messageSignature = "[Qbf,ZzCU4*L3Lbn]";
+
+    public String getMessageSignature() {
+        return messageSignature;
+    }
+
+    public void setMessageSignature(String messageSignature) {
+        this.messageSignature = messageSignature;
+    }
 
     public int getAlarmTriggerMilliseconds() {
         return alarmTriggerMilliseconds;

@@ -27,10 +27,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     private static MediaPlayer mediaPlayer;
     private static Context context;
     private int times  = 0;
-    OfflineStorageService offlineStorageService;
+    private OfflineStorageService offlineStorageService;
+    private DeviceSettings deviceSettings;
     @Override
     public void onReceive(Context context, Intent intent) {
         offlineStorageService = new OfflineStorageService(context);
+        deviceSettings = offlineStorageService.getDeviceSettings();
         times = intent.getIntExtra("times", 0);
         Log.d(TAG, "Alarm triggered because the device is not charging: " + times);
 
@@ -105,12 +107,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 // Get the SmsManager for the specific subscription ID
                 SmsManager smsManager = SmsManager.getSmsManagerForSubscriptionId(subscriptionId);
-                String message = "Emergency! The device is not charging.";
+
+                String message = deviceSettings.getMessageSignature()+" Birihutirwa! Umuriro ushobora kuba wagiye.";
 
                 if (deviceSettings.getPhoneNumber1() != null) {
                     // Send SMS to phone number 1
                     try {
-                        //smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
+                        smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
                         Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using " + CarrierName + " SIM card");
                     } catch (Exception exception) {
                         Log.d(TAG, "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage());
