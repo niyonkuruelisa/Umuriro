@@ -2,6 +2,8 @@ package com.niyonkuruelisa.umuriro;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -66,7 +68,9 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         offlineStorageService = new OfflineStorageService(this);
 
+        // Checking if this is not the first time the app is being opened
         if(offlineStorageService.getDeviceSettings() != null && offlineStorageService.getDeviceSettings().isInitialized()){
+            // checking if the device is a monitor or a receiver
             if(offlineStorageService.getDeviceSettings().isMonitor()){
                 setContentView(R.layout.activity_main_monitor);
 
@@ -96,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
         }else{
             setContentView(R.layout.activity_main);
         }
-        checkForPermissions();
         requestIgnoreBatteryOptimizations();
+        checkForPermissions();
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS}, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
         } else {
@@ -113,41 +117,57 @@ public class MainActivity extends AppCompatActivity {
     private void checkForPermissions(){
         try{
 
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(() -> {
-                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    if(!requestedReadSMSPermission){
-                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
-                        requestedReadSMSPermission = true;
-                    }
-                }else{
-                    readSMSPermissionGranted = true;
-                    Log.d("MainActivity", "Read SMS permission granted");
-                }
-            });
-            handler.postDelayed(() -> {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    if (!requestedReadPhoneStatePermission) {
-                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
-                        requestedReadPhoneStatePermission = true;
-                    }
-                }else{
-                    readPhoneStatePermissionGranted = true;
-                    Log.d("MainActivity", "Read Phone State permission granted");
-                }
-            }, 2000); // Delay for 1 second
 
-            handler.postDelayed(() -> {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    if(!requestedSendSMSPermission){
-                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
-                        requestedSendSMSPermission = true;
+            Handler handler = new Handler(Looper.getMainLooper());
+
+            if(!readSMSPermissionGranted){
+
+                handler.post(() -> {
+
+                    Log.d("MainActivity", "Checking for Read SMS permission...");
+                    if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+                        if(!requestedReadSMSPermission){
+                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+                            requestedReadSMSPermission = true;
+                        }
+                    }else{
+                        readSMSPermissionGranted = true;
+                        Log.d("MainActivity", "Read SMS permission granted");
                     }
-                }else{
-                    sendSMSPermissionGranted = true;
-                    Log.d("MainActivity", "Send SMS permission granted");
-                }
-            }, 4000); // Delay for 2 seconds
+                });
+            }
+
+
+            if(!readPhoneStatePermissionGranted){
+                handler.postDelayed(() -> {
+                    Log.d("MainActivity", "Checking for Read Phone State permission...");
+
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                        if (!requestedReadPhoneStatePermission) {
+                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                            requestedReadPhoneStatePermission = true;
+                        }
+                    }else{
+                        readPhoneStatePermissionGranted = true;
+                        Log.d("MainActivity", "Read Phone State permission granted");
+                    }
+                }, 2000); // Delay for 1 second
+            }
+            if(!sendSMSPermissionGranted){
+                handler.postDelayed(() -> {
+                    Log.d("MainActivity", "Checking for send SMS permission...");
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                        if(!requestedSendSMSPermission){
+                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
+                            requestedSendSMSPermission = true;
+                        }
+                    }else{
+                        sendSMSPermissionGranted = true;
+                        Log.d("MainActivity", "Send SMS permission granted");
+                    }
+                }, 4000); // Delay for 2 seconds
+            }
+
         }catch (Exception exception){
             Log.d("MainActivity", exception.getMessage());
         }
@@ -404,23 +424,61 @@ public class MainActivity extends AppCompatActivity {
                 @SuppressLint("BatteryLife") Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                 intent.setData(Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intent, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            }else{
+                //Log.d("BatteryOptimizations", "Battery optimization permission granted");
             }
         }
     }
+    int readSMSFlag = 0;
+    int readPhoneStateFlag = 0;
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 powerCheckSwitchButton.setEnabled(true);
             } else {
                 // Permission denied, handle accordingly
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS}, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+
+                // force exit the app
+                //Log.d("RuntimePermission", "Battery optimization permission denied, Stop the app.");
+                this.finishAffinity();
             }
         }else if(requestCode == REQUEST_READ_SMS_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                // Permission denied, handle accordingly
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+                // Permission denied, request the permission again
+
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this,  Manifest.permission.READ_SMS)){
+                    //Toast.makeText(this, "Permission denied. Please allow permissions to proceed.", Toast.LENGTH_SHORT).show();
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+
+                }else{
+                    //Toast.makeText(this, "Permission denied with never ask again. Please allow permissions from settings.", Toast.LENGTH_SHORT).show();
+                    readSMSFlag++;
+                    if(readSMSFlag  == 1){
+                        new AlertDialog.Builder(this)
+                                .setTitle("Ubusabe burakenewe")
+                                .setMessage("Kureba ubutumwa bugufi birakenewe kugirango porogaramu ikore neza. Emeza ubusabe mu igenamiterere.")
+                                .setPositiveButton("Komeza", (dialog, which) -> {
+
+                                    // open app settings
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                })
+                                .setNegativeButton("Reka", (dialog, which) -> {
+                                    //Log.d("RuntimePermission", "Read SMS permission denied, stopping the app.");
+                                    clearAppData();
+                                    this.finishAffinity();
+                                })
+                                .setCancelable(false)
+                                .show();
+                    }
+                }
+
             }else{
                 readSMSPermissionGranted = true;
                 ShowInitialSettings();
@@ -429,21 +487,72 @@ public class MainActivity extends AppCompatActivity {
         }else if(requestCode == REQUEST_SEND_SMS_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 // Permission denied, handle accordingly
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
+                //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
+
+                Log.d("RuntimePermission", "Send SMS permission denied, stopping the app.");
+                //this.finishAffinity();
             }else{
                 sendSMSPermissionGranted = true;
                 ShowInitialSettings();
-                Log.d("RuntimePermission", "Send SMS permission granted");
+                //Log.d("RuntimePermission", "Send SMS permission granted");
             }
         }else if(requestCode == REQUEST_READ_PHONE_STATE) {
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 // Permission denied, handle accordingly
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this,  Manifest.permission.READ_PHONE_STATE)){
+                    //Toast.makeText(this, "Permission denied. Please allow permissions to proceed.", Toast.LENGTH_SHORT).show();
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+
+                }else{
+                    //Toast.makeText(this, "Permission denied with never ask again. Please allow permissions from settings.", Toast.LENGTH_SHORT).show();
+                    readPhoneStateFlag++;
+                    if(readPhoneStateFlag  == 1){
+                        new AlertDialog.Builder(this)
+                                .setTitle("Ubusabe burakenewe")
+                                .setMessage("Kureba Telefoni birakenewe kugirango porogaramu ikore neza. Emeza ubusabe mu igenamiterere.")
+                                .setPositiveButton("Komeza", (dialog, which) -> {
+
+                                    // open app settings
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                })
+                                .setNegativeButton("Reka", (dialog, which) -> {
+                                    //Log.d("RuntimePermission", "Read Phone State permission denied, stopping the app.");
+                                    clearAppData();
+                                    this.finishAffinity();
+                                })
+                                .setCancelable(false)
+                                .show();
+                    }
+                }
+
+
             }else{
                 readPhoneStatePermissionGranted = true;
                 ShowInitialSettings();
-                Log.d("RuntimePermission", "Read Phone State permission granted");
+                //Log.d("RuntimePermission", "Read Phone State permission granted");
             }
+        }
+    }
+
+    private void clearAppData(){
+        try {
+            // clearing app data
+            if(Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT){
+                ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).clearApplicationUserData();
+            }else{
+                String packageName = getApplicationContext().getPackageName();
+                Runtime runtime = Runtime.getRuntime();
+                runtime.exec("pm clear "+packageName);
+                /*// restart the app
+                Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);*/
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     private void startChargingService() {
@@ -458,5 +567,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d("SMSCheckerService", "Service created outside.");
         Intent intent = new Intent(this, com.niyonkuruelisa.umuriro.services.SMSCheckerService.class);
         startService(intent);
+    }
+
+    // on app focused again from background
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Toast.makeText(this, "Murakaza neza!", Toast.LENGTH_LONG).show();
     }
 }

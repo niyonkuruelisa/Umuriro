@@ -16,12 +16,13 @@ public class OfflineStorageService {
     private static final String DEVICE_SETTINGS = "settings";
     private static final String BLACKOUT_TIMESTAMPS = "blackoutTimestamps";
     private static final String TAG = "OfflineStorageService";
-
     private final Context context;
 
     public OfflineStorageService(Context context) {
         this.context = context;
     }
+
+    // clear all data
     public void ClearAllData() {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -74,10 +75,10 @@ public class OfflineStorageService {
         String info = sharedPreferences.getString(DEVICE_SETTINGS, null);
         //convert string to map
         if (info != null) {
-            Log.d(TAG, "info is not null");
+            //Log.d(TAG, "info is not null");
             Object object = Helper.decodeObject(info);
             if (object instanceof DeviceSettings) {
-                Log.d(TAG, "Decoded object is of type DeviceSettings");
+                //Log.d(TAG, "Decoded object is of type DeviceSettings");
                 return (DeviceSettings) object;
             } else {
                 throw new ClassCastException("Decoded object is not of type DeviceSettings");

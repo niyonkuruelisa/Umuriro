@@ -71,7 +71,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         // Show the notification
         notificationManager.notify(0, builder.build());
-        if(times == 3 || times == 5){
+        if(times == 5){
             Log.d(TAG, "Sending SMS to emergency contacts");
             SendSMSToEmergencyContacts();
         }
