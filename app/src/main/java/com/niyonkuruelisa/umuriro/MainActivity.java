@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
                 handler.post(() -> {
 
-                    Log.d("MainActivity", "Checking for Read SMS permission...");
+                    //Log.d("MainActivity", "Checking for Read SMS permission...");
                     if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
                         if(!requestedReadSMSPermission){
                             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }else{
                         readSMSPermissionGranted = true;
-                        Log.d("MainActivity", "Read SMS permission granted");
+                        //Log.d("MainActivity", "Read SMS permission granted");
                     }
                 });
             }
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(!readPhoneStatePermissionGranted){
                 handler.postDelayed(() -> {
-                    Log.d("MainActivity", "Checking for Read Phone State permission...");
+                    //Log.d("MainActivity", "Checking for Read Phone State permission...");
 
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                         if (!requestedReadPhoneStatePermission) {
@@ -149,13 +149,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }else{
                         readPhoneStatePermissionGranted = true;
-                        Log.d("MainActivity", "Read Phone State permission granted");
+                        //Log.d("MainActivity", "Read Phone State permission granted");
                     }
                 }, 2000); // Delay for 1 second
             }
             if(!sendSMSPermissionGranted){
                 handler.postDelayed(() -> {
-                    Log.d("MainActivity", "Checking for send SMS permission...");
+                    //Log.d("MainActivity", "Checking for send SMS permission...");
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                         if(!requestedSendSMSPermission){
                             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, REQUEST_SEND_SMS_PERMISSION);
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }else{
                         sendSMSPermissionGranted = true;
-                        Log.d("MainActivity", "Send SMS permission granted");
+                        //Log.d("MainActivity", "Send SMS permission granted");
                     }
                 }, 4000); // Delay for 2 seconds
             }
