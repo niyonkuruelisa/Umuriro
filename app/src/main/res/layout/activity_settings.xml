@@ -24,6 +24,8 @@ tools:context=".SettingsActivity">
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="10dp"
+        android:showDividers="middle"
+        android:divider="@drawable/empty_divider"
         android:gravity="start">
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -38,6 +40,20 @@ tools:context=".SettingsActivity">
             android:textColor="@color/black"
             android:id="@+id/backToMainButton"
             android:layout_gravity="start"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Igenamiterere"
+            android:textColor="@color/white"
+            android:paddingVertical="8dp"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:id="@+id/settingsTitle" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
