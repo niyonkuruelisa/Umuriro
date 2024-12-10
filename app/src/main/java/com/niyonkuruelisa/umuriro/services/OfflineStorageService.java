@@ -7,7 +7,9 @@ import android.util.Log;
 
 import com.niyonkuruelisa.umuriro.helpers.Helper;
 import com.niyonkuruelisa.umuriro.models.DeviceSettings;
+import com.niyonkuruelisa.umuriro.models.SMSActivity;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ public class OfflineStorageService {
     private static final String DEVICE_SETTINGS = "settings";
     private static final String BLACKOUT_TIMESTAMPS = "blackoutTimestamps";
     private static final String TAG = "OfflineStorageService";
+    private static final String SMS_Sent_Activities = "smsSentActivities";
     private final Context context;
 
     public OfflineStorageService(Context context) {
@@ -29,8 +32,42 @@ public class OfflineStorageService {
         editor.clear();
         editor.apply();
     }
+    public void clearSMSActivities(){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(SMS_Sent_Activities);
+        editor.apply();
+    }
     // create or update device settings
+    public void createSMSSentActivities(List<SMSActivity> activities){
+        String value = Helper.encodeObject(activities);
+        List<SMSActivity> existingActivities = getSMSSentActivities();
+        if (existingActivities != null) {
+            existingActivities.addAll(activities);
+            value = Helper.encodeObject(existingActivities);
+        }
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SMS_Sent_Activities, value);
+        editor.apply();
+    }
+    public List<SMSActivity> getSMSSentActivities(){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String info = sharedPreferences.getString(SMS_Sent_Activities, null);
+        //convert string to map
+        if (info != null) {
+            //Log.d(TAG, "info is not null");
+            Object object = Helper.decodeObject(info);
+            if (object instanceof List) {
+                //Log.d(TAG, "Decoded object is of type DeviceSettings");
+                return (List<SMSActivity>) object;
+            } else {
+                throw new ClassCastException("Decoded object is not of type List");
+            }
+        }
 
+        return null;
+    }
     public void createDeviceSettings(DeviceSettings deviceSettings) {
         String value = Helper.encodeObject(deviceSettings);
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);

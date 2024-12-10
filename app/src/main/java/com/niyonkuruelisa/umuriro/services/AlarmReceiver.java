@@ -17,7 +17,10 @@ import androidx.core.app.NotificationCompat;
 
 import com.niyonkuruelisa.umuriro.R;
 import com.niyonkuruelisa.umuriro.models.DeviceSettings;
+import com.niyonkuruelisa.umuriro.models.SMSActivity;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -110,15 +113,73 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 String message = deviceSettings.getMessageSignature()+" Birihutirwa! Umuriro ushobora kuba wagiye.";
 
+                List<SMSActivity> smsActivities = new ArrayList<>();
+
                 if (deviceSettings.getPhoneNumber1() != null) {
-                    // Send SMS to phone number 1
-                    try {
-                        smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
-                        Log.d(TAG, "SMS sent to " + deviceSettings.getPhoneNumber1() + " using " + CarrierName + " SIM card");
-                    } catch (Exception exception) {
-                        Log.d(TAG, "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage());
+                    if(deviceSettings.getPhoneNumber1().length() == 10){
+                        // Send SMS to phone number 1
+                        try {
+                            smsManager.sendTextMessage(deviceSettings.getPhoneNumber1(), null, message, null, null);
+                            String msg = "SMS sent to " + deviceSettings.getPhoneNumber1() + " using " + CarrierName + " SIM card";
+                            Log.d(TAG, msg);
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                        } catch (Exception exception) {
+                            String msg = "Failed to send SMS to " + deviceSettings.getPhoneNumber1() + ": " + exception.getMessage();
+                            Log.d(TAG,msg );
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                        }
                     }
                 }
+                if (deviceSettings.getPhoneNumber2() != null) {
+                    if(deviceSettings.getPhoneNumber2().length() == 10){
+                        // Send SMS to phone number 2
+                        try {
+                            smsManager.sendTextMessage(deviceSettings.getPhoneNumber2(), null, message, null, null);
+                            String msg = "SMS sent to " + deviceSettings.getPhoneNumber2() + " using " + CarrierName + " SIM card";
+                            Log.d(TAG, msg);
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                            //smsSent = true;
+                        } catch (Exception exception) {
+                            String msg = "Failed to send SMS to " + deviceSettings.getPhoneNumber2() + ": " + exception.getMessage();
+                            Log.d(TAG,msg );
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                        }
+                    }
+                }
+                if (deviceSettings.getPhoneNumber3() != null) {
+                    if(deviceSettings.getPhoneNumber3().length() == 10){
+                        // Send SMS to phone number 2
+                        try {
+                            smsManager.sendTextMessage(deviceSettings.getPhoneNumber3(), null, message, null, null);
+                            String msg = "SMS sent to " + deviceSettings.getPhoneNumber3() + " using " + CarrierName + " SIM card";
+                            Log.d(TAG, msg);
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                            //smsSent = true;
+                        } catch (Exception exception) {
+                            String msg = "Failed to send SMS to " + deviceSettings.getPhoneNumber3() + ": " + exception.getMessage();
+                            Log.d(TAG,msg );
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                        }
+                    }
+                }
+                if (deviceSettings.getPhoneNumber4() != null) {
+                    if(deviceSettings.getPhoneNumber4().length() == 10){
+                        // Send SMS to phone number 2
+                        try {
+                            smsManager.sendTextMessage(deviceSettings.getPhoneNumber4(), null, message, null, null);
+                            String msg = "SMS sent to " + deviceSettings.getPhoneNumber4() + " using " + CarrierName + " SIM card";
+                            Log.d(TAG, msg);
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                            //smsSent = true;
+                        } catch (Exception exception) {
+                            String msg = "Failed to send SMS to " + deviceSettings.getPhoneNumber4() + ": " + exception.getMessage();
+                            Log.d(TAG,msg );
+                            smsActivities.add(new SMSActivity(msg, new Date(), true));
+                        }
+                    }
+                }
+                offlineStorageService.createSMSSentActivities(smsActivities);
+
             } else {
                 Log.d(TAG, "No active SIM cards found");
             }

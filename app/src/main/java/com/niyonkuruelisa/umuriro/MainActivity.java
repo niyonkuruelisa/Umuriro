@@ -28,6 +28,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean requestedSendSMSPermission = false;
     private boolean requestedReadSMSPermission = false;
     private boolean requestedReadPhoneStatePermission = false;
+    private AppCompatImageButton applicationSettingsButton;
 
     DeviceSettings deviceSettings = new DeviceSettings();
     @SuppressLint({"SetTextI18n", "InlinedApi"})
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             if(offlineStorageService.getDeviceSettings().isMonitor()){
                 setContentView(R.layout.activity_main_monitor);
 
+                applicationSettingsButton = findViewById(R.id.applicationSettingsButton);
                 powerCheckSwitchButton = findViewById(R.id.buttonSwitch);
                 powerCheckSwitchButton.setChecked(false);
                 powerCheckSwitchButton.setEnabled(false);
@@ -93,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(MainActivity.this, com.niyonkuruelisa.umuriro.services.ChargingService.class);
                         stopService(intent);
                     }
+                });
+                applicationSettingsButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
                 });
             }else{
                 setContentView(R.layout.activity_main_receiver);
@@ -271,6 +278,8 @@ public class MainActivity extends AppCompatActivity {
                 String phone2 = (userPhoneInput2.getText() != null) ? userPhoneInput2.getText().toString() : "";
                 String phone3 = (userPhoneInput3.getText() != null) ? userPhoneInput3.getText().toString() : "";
                 String phone4 = (userPhoneInput4.getText() != null) ? userPhoneInput4.getText().toString() : "";
+                //todo: validate phone numbers so that they have to be independent from each other (phone1 not equal to phone2, phone3, phone4,etc...)
+
                 if(name.isEmpty()){
                     invalidNameSection.setVisibility(View.VISIBLE);
                     return;
